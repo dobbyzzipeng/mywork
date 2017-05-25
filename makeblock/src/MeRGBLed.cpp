@@ -282,16 +282,6 @@ void MeRGBLed::setNumber(uint8_t num_leds)
   {
     pixels[i] = 0;
   }
-
-  pixels_bak    = (uint8_t*)malloc(count_led * 3);
-  if(!pixels_bak)
-  {
-    printf("There is not enough space!\r\n");
-  }
-  for(int16_t i = 0; i < count_led * 3; i++)
-  {
-    pixels_bak[i] = 0;
-  }
 }
 
 /**
@@ -659,12 +649,8 @@ void MeRGBLed::rgbled_sendarray_mask(uint8_t *data, uint16_t datlen, uint8_t mas
  */
 void MeRGBLed::show(void)
 {
-  if(memcmp(pixels_bak,pixels,3 * count_led) != 0)
-  {
-    rgbled_sendarray_mask(pixels, 3 * count_led, pinMask, (uint8_t*)ws2812_port);
-    memcpy(pixels_bak,pixels,3 * count_led);
-    delayMicroseconds(500);
-  }
+  rgbled_sendarray_mask(pixels, 3 * count_led, pinMask, (uint8_t*)ws2812_port);
+  delay(1);
 }
 
 /**
@@ -674,7 +660,5 @@ MeRGBLed::~MeRGBLed(void)
 {
   free(pixels);
   pixels = NULL;
-  free(pixels_bak);
-  pixels_bak = NULL;
 }
 

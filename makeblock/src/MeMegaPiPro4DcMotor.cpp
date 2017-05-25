@@ -1,11 +1,11 @@
 /**
  * \par Copyright (C), 2012-2016, MakeBlock
- * \class MeDCMotor
+ * \class MeMegaPiPro4DcMotor
  * \brief   Driver for Me DC motor device.
- * @file    MeDCMotor.cpp
+ * @file    MeMegaPiPro4DcMotor.cpp
  * @author  MakeBlock
- * @version V1.0.1
- * @date    2016/04/07
+ * @version V1.0.0
+ * @date    2017/03/14
  * @brief   Driver for Me DC motor device.
  *
  * \par Copyright
@@ -25,22 +25,21 @@
  *
  * \par Method List:
  *
- *    1. void MeDCMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
- *    2. void MeDCMotor::run(int16_t speed)
- *    3. void MeDCMotor::stop(void)
- *    4. void MeDCMotor::reset(uint8_t port)
- *    5. void MeDCMotor::reset(uint8_t port, uint8_t slot)
+ *    1. void MeMegaPiPro4DcMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
+ *    2. void MeMegaPiPro4DcMotor::run(int16_t speed)
+ *    3. void MeMegaPiPro4DcMotor::stop(void)
+ *    4. void MeMegaPiPro4DcMotor::reset(uint8_t port)
+ *    5. void MeMegaPiPro4DcMotor::reset(uint8_t port, uint8_t slot)
  *
  * \par History:
  * <pre>
  * `<Author>`         `<Time>`        `<Version>`        `<Descr>`
- * Mark Yan         2015/09/09     1.0.0            Rebuild the old lib.
- * Mark Yan         2016/04/07     1.0.1            fix motor reset issue.
+ * Zzipeng          2017/03/14          1.0.0            build the new
  * </pre>
  *
  * @example DCMotorDriverTest.ino
  */
-#include "MeDCMotor.h"
+#include "MeMegaPiPro4DcMotor.h"
 
 #ifdef ME_PORT_DEFINED
 /**
@@ -49,7 +48,7 @@
  * \param[in]
  *   None
  */
-MeDCMotor::MeDCMotor(void) : MePort(0)
+MeMegaPiPro4DcMotor::MeMegaPiPro4DcMotor(void) : MePort(0)
 {
   //The PWM frequency is 976 Hz
 #if defined(__AVR_ATmega32U4__) //MeBaseBoard use ATmega32U4 as MCU
@@ -84,7 +83,7 @@ MeDCMotor::MeDCMotor(void) : MePort(0)
  * \param[in]
  *   port - RJ25 port from PORT_1 to M2
  */
-MeDCMotor::MeDCMotor(uint8_t port) : MePort(port)
+MeMegaPiPro4DcMotor::MeMegaPiPro4DcMotor(uint8_t port) : MePort(port)
 {
   //The PWM frequency is 976 Hz
 #if defined(__AVR_ATmega32U4__) //MeBaseBoard use ATmega32U4 as MCU
@@ -122,7 +121,7 @@ MeDCMotor::MeDCMotor(uint8_t port) : MePort(port)
  * \param[in]
  *   pwm_pin - arduino port for pwm input(should analog pin)
  */
-MeDCMotor::MeDCMotor(uint8_t dir_pin,uint8_t pwm_pin)
+MeMegaPiPro4DcMotor::MeMegaPiPro4DcMotor(uint8_t dir_pin,uint8_t pwm_pin)
 {
   dc_dir_pin = dir_pin;
   dc_pwm_pin = pwm_pin;
@@ -147,7 +146,7 @@ MeDCMotor::MeDCMotor(uint8_t dir_pin,uint8_t pwm_pin)
  * \par Others
  *   None
  */
-void MeDCMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
+void MeMegaPiPro4DcMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
 {
   dc_dir_pin = dir_pin;
   dc_pwm_pin = pwm_pin;
@@ -172,7 +171,7 @@ void MeDCMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
  * \par Others
  *   None
  */
-void MeDCMotor::reset(uint8_t port)
+void MeMegaPiPro4DcMotor::reset(uint8_t port)
 {
   MePort::reset(port);
   last_speed = 500;
@@ -194,7 +193,7 @@ void MeDCMotor::reset(uint8_t port)
  * \par Others
  *   None
  */
-void MeDCMotor::reset(uint8_t port, uint8_t slot)
+void MeMegaPiPro4DcMotor::reset(uint8_t port, uint8_t slot)
 {
   MePort::reset(port, slot);
   last_speed = 500;
@@ -214,7 +213,7 @@ void MeDCMotor::reset(uint8_t port, uint8_t slot)
  * \par Others
  *   None
  */
-void MeDCMotor::run(int16_t speed)
+void MeMegaPiPro4DcMotor::run(int16_t speed)
 {
   speed	= speed > 255 ? 255 : speed;
   speed	= speed < -255 ? -255 : speed;
@@ -262,8 +261,8 @@ void MeDCMotor::run(int16_t speed)
  * \par Others
  *   None
  */
-void MeDCMotor::stop(void)
+void MeMegaPiPro4DcMotor::stop(void)
 {
-  MeDCMotor::run(0);
+  MeMegaPiPro4DcMotor::run(0);
 }
 

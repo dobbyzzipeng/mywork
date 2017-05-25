@@ -2,8 +2,8 @@
 * File Name          : mbot_factory_firmware.ino
 * Author             : Ander, Mark Yan
 * Updated            : Ander, Mark Yan
-* Version            : V06.01.009
-* Date               : 22/05/2017
+* Version            : V06.01.008
+* Date               : 13/04/2017
 * Description        : Firmware for Makeblock Electronic modules with Scratch.  
 * License            : CC-BY-SA 3.0
 * Copyright (C) 2013 - 2017 Maker Works Technology Co., Ltd. All right reserved.
@@ -17,7 +17,6 @@ MeUltrasonicSensor ultr(PORT_3);
 MeLineFollower line(PORT_2);
 MeLEDMatrix ledMx;
 MeIR ir;
-MeJoystick joystick;
 MeBuzzer buzzer;
 MeTemperature ts;
 Me7SegmentDisplay seg;
@@ -101,7 +100,7 @@ byte index = 0;
 byte dataLen;
 byte modulesLen=0;
 unsigned char prevc=0;
-String mVersion = "06.01.009";
+String mVersion = "06.01.008";
 
 boolean isAvailable = false;
 boolean isStart = false;
@@ -125,72 +124,36 @@ uint8_t command_index = 0;
 uint8_t motor_sta = STOP;
 uint8_t mode = MODE_A;
 
-#define VERSION                0
-#define ULTRASONIC_SENSOR      1
-#define TEMPERATURE_SENSOR     2
-#define LIGHT_SENSOR           3
-#define POTENTIONMETER         4
-#define JOYSTICK               5
-#define GYRO                   6
-#define SOUND_SENSOR           7
-#define RGBLED                 8
-#define SEVSEG                 9
-#define MOTOR                  10
-#define SERVO                  11
-#define ENCODER                12
-#define IR                     13
-#define IRREMOTE               14
-#define PIRMOTION              15
-#define INFRARED               16
-#define LINEFOLLOWER           17
-#define IRREMOTECODE           18
-#define SHUTTER                20
-#define LIMITSWITCH            21
-#define BUTTON                 22
-#define HUMITURE               23
-#define FLAMESENSOR            24
-#define GASSENSOR              25
-#define COMPASS                26
-#define TEMPERATURE_SENSOR_1   27
-#define DIGITAL                30
-#define ANALOG                 31
-#define PWM                    32
-#define SERVO_PIN              33
-#define TONE                   34
-#define BUTTON_INNER           35
-#define ULTRASONIC_ARDUINO     36
-#define PULSEIN                37
-#define STEPPER                40
-#define LEDMATRIX              41
-#define TIMER                  50
-#define TOUCH_SENSOR           51
-#define JOYSTICK_MOVE          52
-#define COMMON_COMMONCMD       60
-  //Secondary command
-  #define SET_STARTER_MODE     0x10
-  #define SET_AURIGA_MODE      0x11
-  #define SET_MEGAPI_MODE      0x12
-  #define GET_BATTERY_POWER    0x70
-  #define GET_AURIGA_MODE      0x71
-  #define GET_MEGAPI_MODE      0x72
-#define ENCODER_BOARD          61
-  //Read type
-  #define ENCODER_BOARD_POS    0x01
-  #define ENCODER_BOARD_SPEED  0x02
-
-#define ENCODER_PID_MOTION     62
-  //Secondary command
-  #define ENCODER_BOARD_POS_MOTION         0x01
-  #define ENCODER_BOARD_SPEED_MOTION       0x02
-  #define ENCODER_BOARD_PWM_MOTION         0x03
-  #define ENCODER_BOARD_SET_CUR_POS_ZERO   0x04
-  #define ENCODER_BOARD_CAR_POS_MOTION     0x05
-  
-#define PM25SENSOR     63
-  //Secondary command
-  #define GET_PM1_0         0x01
-  #define GET_PM2_5         0x02
-  #define GET_PM10          0x03
+#define VERSION 0
+#define ULTRASONIC_SENSOR 1
+#define TEMPERATURE_SENSOR 2
+#define LIGHT_SENSOR 3
+#define POTENTIONMETER 4
+#define JOYSTICK 5
+#define GYRO 6
+#define SOUND_SENSOR 7
+#define RGBLED 8
+#define SEVSEG 9
+#define MOTOR 10
+#define SERVO 11
+#define ENCODER 12
+#define IR 13
+#define IRREMOTE 14
+#define PIRMOTION 15
+#define INFRARED 16
+#define LINEFOLLOWER 17
+#define IRREMOTECODE 18
+#define SHUTTER 20
+#define LIMITSWITCH 21
+#define BUTTON 22
+#define DIGITAL 30
+#define ANALOG 31
+#define PWM 32
+#define SERVO_PIN 33
+#define TONE 34
+#define BUTTON_INNER 35
+#define LEDMATRIX 41
+#define TIMER 50
 
 #define GET 1
 #define RUN 2
@@ -696,141 +659,141 @@ void runModule(int device){
   int port = readBuffer(6);
   int pin = port;
   switch(device){
-    case MOTOR:{
-      int speed = readShort(7);
-      port==M1?MotorL.run(speed):MotorR.run(speed);
-    } 
+   case MOTOR:{
+     int speed = readShort(7);
+     port==M1?MotorL.run(speed):MotorR.run(speed);
+   } 
     break;
     case JOYSTICK:{
-      int leftSpeed = readShort(6);
-      MotorL.run(leftSpeed);
-      int rightSpeed = readShort(8);
-      MotorR.run(rightSpeed);
+     int leftSpeed = readShort(6);
+     MotorL.run(leftSpeed);
+     int rightSpeed = readShort(8);
+     MotorR.run(rightSpeed);
     }
     break;
-    case RGBLED:{
-      int slot = readBuffer(7);
-      int idx = readBuffer(8);
-      int r = readBuffer(9);
-      int g = readBuffer(10);
-      int b = readBuffer(11);
-      rgb.reset(port,slot);
-      if(idx>0){
-        rgb.setColorAt(idx-1,r,g,b); 
-      }else{
-        rgb.setColor(r,g,b); 
-      }
-      rgb.show();
-    }
-    break;
-    case SERVO:{
-      int slot = readBuffer(7);
-      pin = slot==1?mePort[port].s1:mePort[port].s2;
-      int v = readBuffer(8);
-      if(v>=0&&v<=180){
-        servo.attach(pin);
-        servo.write(v);
-      }
-    }
-    break;
-    case SEVSEG:{
-      if(seg.getPort()!=port){
-        seg.reset(port);
-      }
-      float v = readFloat(7);
-      seg.display(v);
-    }
-    break;
-    case LEDMATRIX:{
-      if(ledMx.getPort()!=port){
-        ledMx.reset(port);
-      }
-      int action = readBuffer(7);
-      if(action==1){
-             int px = buffer[8];
-             int py = buffer[9];
-             int len = readBuffer(10);
-             char *s = readString(11,len);
-             ledMx.drawStr(px,py,s);
-       }else if(action==2){
-             int px = readBuffer(8);
-             int py = readBuffer(9);
-             uint8_t *ss = readUint8(10,16);
-             ledMx.drawBitmap(px,py,16,ss);
-       }else if(action==3){
-             int point = readBuffer(8);
-             int hours = readBuffer(9);
-             int minutes = readBuffer(10);
-             ledMx.showClock(hours,minutes,point);
-      }else if(action == 4){
-             ledMx.showNum(readFloat(8),3);
-      }
-    }
-    break;
-    case LIGHT_SENSOR:{
-      if(generalDevice.getPort()!=port){
-        generalDevice.reset(port);
-      }
-      int v = readBuffer(7);
-      generalDevice.dWrite1(v);
-    }
-    break;
-    case IR:{
-      String Str_data;
-      int len = readBuffer(2)-3;
-      for(int i=0;i<len;i++){
-        Str_data+=(char)readBuffer(6+i);
-      }
-      ir.sendString(Str_data);
-      Str_data = "";
-    }
-    break;
-    case SHUTTER:{
-      if(generalDevice.getPort()!=port){
-        generalDevice.reset(port);
-      }
-      int v = readBuffer(7);
-      if(v<2){
-        generalDevice.dWrite1(v);
-      }else{
-        generalDevice.dWrite2(v-2);
-      }
-    }
-    break;
-    case DIGITAL:{
-      pinMode(pin,OUTPUT);
-      int v = readBuffer(7);
-      digitalWrite(pin,v);
-    }
-    break;
-    case PWM:{
-      pinMode(pin,OUTPUT);
-      int v = readBuffer(7);
-      analogWrite(pin,v);
-    }
-    break;
-    case TONE:{
-      int hz = readShort(6);
-      int tone_time = readShort(8);
-      if(hz>0){
-        buzzer.tone(hz,tone_time);
-      }else{
-        buzzer.noTone(); 
-      }
-    }
-    break;
-    case SERVO_PIN:{
-      int v = readBuffer(7);
-      if(v>=0&&v<=180){
-        servo.attach(pin);
-        servo.write(v);
-      }
-    }
-    break;
-    case TIMER:{
-     lastTime = millis()/1000.0; 
-    }
-    break;
+   case RGBLED:{
+     int slot = readBuffer(7);
+     int idx = readBuffer(8);
+     int r = readBuffer(9);
+     int g = readBuffer(10);
+     int b = readBuffer(11);
+     rgb.reset(port,slot);
+     if(idx>0){
+       rgb.setColorAt(idx-1,r,g,b); 
+     }else{
+       rgb.setColor(r,g,b); 
+     }
+     rgb.show();
+   }
+   break;
+   case SERVO:{
+     int slot = readBuffer(7);
+     pin = slot==1?mePort[port].s1:mePort[port].s2;
+     int v = readBuffer(8);
+     if(v>=0&&v<=180){
+       servo.attach(pin);
+       servo.write(v);
+     }
+   }
+   break;
+   case SEVSEG:{
+     if(seg.getPort()!=port){
+       seg.reset(port);
+     }
+     float v = readFloat(7);
+     seg.display(v);
+   }
+   break;
+   case LEDMATRIX:{
+     if(ledMx.getPort()!=port){
+       ledMx.reset(port);
+     }
+     int action = readBuffer(7);
+     if(action==1){
+            int px = buffer[8];
+            int py = buffer[9];
+            int len = readBuffer(10);
+            char *s = readString(11,len);
+            ledMx.drawStr(px,py,s);
+      }else if(action==2){
+            int px = readBuffer(8);
+            int py = readBuffer(9);
+            uint8_t *ss = readUint8(10,16);
+            ledMx.drawBitmap(px,py,16,ss);
+      }else if(action==3){
+            int point = readBuffer(8);
+            int hours = readBuffer(9);
+            int minutes = readBuffer(10);
+            ledMx.showClock(hours,minutes,point);
+     }else if(action == 4){
+            ledMx.showNum(readFloat(8),3);
+     }
+   }
+   break;
+   case LIGHT_SENSOR:{
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+     }
+     int v = readBuffer(7);
+     generalDevice.dWrite1(v);
+   }
+   break;
+   case IR:{
+     String Str_data;
+     int len = readBuffer(2)-3;
+     for(int i=0;i<len;i++){
+       Str_data+=(char)readBuffer(6+i);
+     }
+     ir.sendString(Str_data);
+     Str_data = "";
+   }
+   break;
+   case SHUTTER:{
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+     }
+     int v = readBuffer(7);
+     if(v<2){
+       generalDevice.dWrite1(v);
+     }else{
+       generalDevice.dWrite2(v-2);
+     }
+   }
+   break;
+   case DIGITAL:{
+     pinMode(pin,OUTPUT);
+     int v = readBuffer(7);
+     digitalWrite(pin,v);
+   }
+   break;
+   case PWM:{
+     pinMode(pin,OUTPUT);
+     int v = readBuffer(7);
+     analogWrite(pin,v);
+   }
+   break;
+   case TONE:{
+     int hz = readShort(6);
+     int tone_time = readShort(8);
+     if(hz>0){
+       buzzer.tone(hz,tone_time);
+     }else{
+       buzzer.noTone(); 
+     }
+   }
+   break;
+   case SERVO_PIN:{
+     int v = readBuffer(7);
+     if(v>=0&&v<=180){
+       servo.attach(pin);
+       servo.write(v);
+     }
+   }
+   break;
+   case TIMER:{
+    lastTime = millis()/1000.0; 
+   }
+   break;
   }
 }
 void readSensor(int device){
@@ -844,150 +807,157 @@ void readSensor(int device){
   port = readBuffer(6);
   pin = port;
   switch(device){
-    case  ULTRASONIC_SENSOR:{
-      if(ultr.getPort()!=port){
-        ultr.reset(port);
-      }
-      value = (float)ultr.distanceCm();
-      writeHead();
-      writeSerial(command_index);
-      sendFloat(value);
-    }
-    break;
-    case  TEMPERATURE_SENSOR:{
-      slot = readBuffer(7);
-      if(ts.getPort()!=port||ts.getSlot()!=slot){
-        ts.reset(port,slot);
-      }
-      value = ts.temperature();
-      sendFloat(value);
-    }
-    break;
-    case  LIGHT_SENSOR:
-    case  SOUND_SENSOR:
-    case  POTENTIONMETER:{
-      if(generalDevice.getPort()!=port){
-        generalDevice.reset(port);
-        pinMode(generalDevice.pin2(),INPUT);
-      }
-      value = generalDevice.aRead2();
-      sendFloat(value);
-    }
-    break;
-    case  JOYSTICK:{
-      slot = readBuffer(7);
-      if(joystick.getPort() != port){
-        joystick.reset(port);
-      }
-      value = joystick.read(slot);
-      sendFloat(value); 
-    }
-    break;
-    case  IR:{
-//      if(ir.getPort()!=port){
-//        ir.reset(port);
+   case  ULTRASONIC_SENSOR:{
+     if(ultr.getPort()!=port){
+       ultr.reset(port);
+     }
+     value = (float)ultr.distanceCm();
+     writeHead();
+     writeSerial(command_index);
+     sendFloat(value);
+   }
+   break;
+   case  TEMPERATURE_SENSOR:{
+     slot = readBuffer(7);
+     if(ts.getPort()!=port||ts.getSlot()!=slot){
+       ts.reset(port,slot);
+     }
+     value = ts.temperature();
+     sendFloat(value);
+   }
+   break;
+   case  LIGHT_SENSOR:
+   case  SOUND_SENSOR:
+   case  POTENTIONMETER:{
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+       pinMode(generalDevice.pin2(),INPUT);
+     }
+     value = generalDevice.aRead2();
+     sendFloat(value);
+   }
+   break;
+   case  JOYSTICK:{
+     slot = readBuffer(7);
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+       pinMode(generalDevice.pin1(),INPUT);
+       pinMode(generalDevice.pin2(),INPUT);
+     }
+     if(slot==1){
+       value = generalDevice.aRead1();
+       sendFloat(value);
+     }else if(slot==2){
+       value = generalDevice.aRead2();
+       sendFloat(value);
+     }
+   }
+   break;
+   case  IR:{
+//     if(ir.getPort()!=port){
+//       ir.reset(port);
+//     }
+//      if(irReady){
+//         sendString(irBuffer);
+//         irReady = false;
+//         irBuffer = "";
 //      }
-//       if(irReady){
-//          sendString(irBuffer);
-//          irReady = false;
-//          irBuffer = "";
+   }
+   break;
+   case IRREMOTE:{
+//     unsigned char r = readBuffer(7);
+//     if(millis()/1000.0-lastIRTime>0.2){
+//       sendByte(0);
+//     }else{
+//       sendByte(irRead==r);
+//     }
+//     //irRead = 0;
+//     irIndex = 0;
+   }
+   break;
+   case IRREMOTECODE:{
+//     sendByte(irRead);
+//     irRead = 0;
+//     irIndex = 0;
+   }
+   break;
+   case  PIRMOTION:{
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+       pinMode(generalDevice.pin2(),INPUT);
+     }
+     value = generalDevice.dRead2();
+     sendFloat(value);
+   }
+   break;
+   case  LINEFOLLOWER:{
+     if(generalDevice.getPort()!=port){
+       generalDevice.reset(port);
+         pinMode(generalDevice.pin1(),INPUT);
+         pinMode(generalDevice.pin2(),INPUT);
+     }
+     value = generalDevice.dRead1()*2+generalDevice.dRead2();
+     sendFloat(value);
+   }
+   break;
+   case LIMITSWITCH:{
+     slot = readBuffer(7);
+     if(generalDevice.getPort()!=port||generalDevice.getSlot()!=slot){
+       generalDevice.reset(port,slot);
+     }
+     if(slot==1){
+       pinMode(generalDevice.pin1(),INPUT_PULLUP);
+       value = !generalDevice.dRead1();
+     }else{
+       pinMode(generalDevice.pin2(),INPUT_PULLUP);
+       value = !generalDevice.dRead2();
+     }
+     sendFloat(value);  
+   }
+   break;
+   case BUTTON_INNER:{
+     pin = analogs[pin];
+     char s = readBuffer(7);
+     pinMode(pin,INPUT);
+     boolean currentPressed = !(analogRead(pin)>10);
+     sendByte(s^(currentPressed?1:0));
+     buttonPressed = currentPressed;
+   }
+   break;
+   case  GYRO:{
+//       int axis = readBuffer(7);
+//       gyro.update();
+//       if(axis==1){
+//         value = gyro.getAngleX();
+//         sendFloat(value);
+//       }else if(axis==2){
+//         value = gyro.getAngleY();
+//         sendFloat(value);
+//       }else if(axis==3){
+//         value = gyro.getAngleZ();
+//         sendFloat(value);
 //       }
-    }
-    break;
-    case IRREMOTE:{
-//      unsigned char r = readBuffer(7);
-//      if(millis()/1000.0-lastIRTime>0.2){
-//        sendByte(0);
-//      }else{
-//        sendByte(irRead==r);
-//      }
-//      irRead = 0;
-//      irIndex = 0;
-    }
-    break;
-    case IRREMOTECODE:{
-//      sendByte(irRead);
-//      irRead = 0;
-//      irIndex = 0;
-    }
-    break;
-    case  PIRMOTION:{
-      if(generalDevice.getPort()!=port){
-        generalDevice.reset(port);
-        pinMode(generalDevice.pin2(),INPUT);
-      }
-      value = generalDevice.dRead2();
-      sendFloat(value);
-    }
-    break;
-    case  LINEFOLLOWER:{
-      if(generalDevice.getPort()!=port){
-        generalDevice.reset(port);
-          pinMode(generalDevice.pin1(),INPUT);
-          pinMode(generalDevice.pin2(),INPUT);
-      }
-      value = generalDevice.dRead1()*2+generalDevice.dRead2();
-      sendFloat(value);
-    }
-    break;
-    case LIMITSWITCH:{
-      slot = readBuffer(7);
-      if(generalDevice.getPort()!=port||generalDevice.getSlot()!=slot){
-        generalDevice.reset(port,slot);
-      }
-      if(slot==1){
-        pinMode(generalDevice.pin1(),INPUT_PULLUP);
-        value = !generalDevice.dRead1();
-      }else{
-        pinMode(generalDevice.pin2(),INPUT_PULLUP);
-        value = !generalDevice.dRead2();
-      }
-      sendFloat(value);  
-    }
-    break;
-    case BUTTON_INNER:{
-      pin = analogs[pin];
-      char s = readBuffer(7);
-      pinMode(pin,INPUT);
-      boolean currentPressed = !(analogRead(pin)>10);
-      sendByte(s^(currentPressed?1:0));
-      buttonPressed = currentPressed;
-    }
-    break;
-    case  GYRO:{
-//        int axis = readBuffer(7);
-//        gyro.update();
-//        if(axis==1){
-//          value = gyro.getAngleX();
-//          sendFloat(value);
-//        }else if(axis==2){
-//          value = gyro.getAngleY();
-//          sendFloat(value);
-//        }else if(axis==3){
-//          value = gyro.getAngleZ();
-//          sendFloat(value);
-//        }
-    }
-    break;
-    case  VERSION:{
-      sendString(mVersion);
-    }
-    break;
-    case  DIGITAL:{
-      pinMode(pin,INPUT);
-      sendFloat(digitalRead(pin));
-    }
-    break;
-    case  ANALOG:{
-      pin = analogs[pin];
-      pinMode(pin,INPUT);
-      sendFloat(analogRead(pin));
-    }
-    break;
-    case TIMER:{
-      sendFloat(currentTime);
-    }
-    break;
+   }
+   break;
+   case  VERSION:{
+     sendString(mVersion);
+   }
+   break;
+   case  DIGITAL:{
+     pinMode(pin,INPUT);
+     sendFloat(digitalRead(pin));
+   }
+   break;
+   case  ANALOG:{
+     pin = analogs[pin];
+     pinMode(pin,INPUT);
+     sendFloat(analogRead(pin));
+   }
+   break;
+   case TIMER:{
+     sendFloat(currentTime);
+   }
+   break;
   }
 }
 
@@ -1003,10 +973,9 @@ void setup()
   rgb.setpin(13);
   rgb.setColor(0,0,0);
   rgb.show();
-  delay(1);
   rgb.setColor(10, 0, 0);
   rgb.show();
-  buzzer.tone(NTD1, 300);
+  buzzer.tone(NTD1, 300); 
   delay(300);
   rgb.setColor(0, 10, 0);
   rgb.show();
@@ -1036,7 +1005,6 @@ void loop()
     currentPressed = !(analogRead(7) > 100);
     if(currentPressed != pre_buttonPressed)
     {
-      rgb.setpin(13);
       pre_buttonPressed = currentPressed;
       if(currentPressed == true)
       {
